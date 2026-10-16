@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AAPL Terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+Thai:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --white:#ffffff;--page:#f6faff;
+  --sky:#2f9be6;--sky-d:#1b7fc7;--sky-l:#e3f2fd;--sky-xl:#f1f8ff;
+  --navy:#0a2342;--navy-2:#12356b;--navy-3:#0d2b52;
+  --ink:#0a2342;--mute:#5b7089;--line:#d6e6f5;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --sans:"Noto Sans Thai","Sarabun",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--page);color:var(--ink);font-family:var(--sans);line-height:1.7;
+  background-image:radial-gradient(ellipse at 85% -10%,#d4ebff 0,transparent 45%),linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:auto,64px 64px,64px 64px;background-position:0 0,-1px -1px,-1px -1px}
+body::before{content:"";position:fixed;inset:0;background:linear-gradient(180deg,rgba(246,250,255,.55),var(--page) 70%);pointer-events:none;z-index:0}
+
+/* ---------- Sidebar ---------- */
+aside{position:fixed;left:0;top:0;bottom:0;width:244px;padding:28px 22px;background:var(--navy);color:#fff;display:flex;flex-direction:column;gap:28px;z-index:20}
+.brand{display:flex;align-items:center;gap:12px}
+.mark{width:44px;height:44px;border-radius:11px;background:var(--sky);color:#fff;font-family:var(--mono);font-weight:600;font-size:13px;display:grid;place-items:center}
+.brand b{display:block;font-size:1.05rem;letter-spacing:.02em;line-height:1.2}
+.brand small{color:#9db8d6;font-family:var(--mono);font-size:.7rem}
+nav{display:flex;flex-direction:column;gap:4px}
+nav a{display:flex;gap:12px;align-items:center;color:#bcd4ee;text-decoration:none;padding:9px 12px;border-radius:10px;font-size:.92rem;transition:.15s}
+nav a span{font-family:var(--mono);font-size:.72rem;color:var(--sky)}
+nav a:hover{background:var(--navy-2);color:#fff}
+.fx{margin-top:auto;padding:14px;border:1px solid var(--navy-2);border-radius:14px;background:var(--navy-3)}
+.fx small{display:block;color:#9db8d6;font-size:.72rem;font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase}
+.fx b{display:block;font-family:var(--mono);font-size:1.5rem;color:#7cc4f5;margin-top:2px}
+
+/* ---------- Layout ---------- */
+main{position:relative;z-index:1;margin-left:244px;padding:44px clamp(20px,4vw,56px) 80px;max-width:1360px}
+section{margin-bottom:68px;scroll-margin-top:24px}
+.eyebrow{font-family:var(--mono);font-size:.75rem;color:var(--sky-d);letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px;font-weight:600}
+h2{margin:0 0 6px;font-size:clamp(1.6rem,3vw,2.2rem);font-weight:800;letter-spacing:-.01em;line-height:1.25;color:var(--navy)}
+.lead{color:var(--mute);margin:0 0 22px;max-width:64ch}
+h3{margin:0 0 10px;font-size:1.05rem;font-weight:700;color:var(--navy)}
+h3.sub{margin-top:22px}
+.panel{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:22px;overflow:hidden;box-shadow:0 10px 30px rgba(10,35,66,.05)}
+.panel.flush{padding:0}
+.panel p{margin:0 0 14px;color:#27425f}
+
+/* ---------- Tabs ---------- */
+.tabs{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--line);border-radius:12px;background:var(--white);margin-bottom:14px}
+.tabs button{border:0;background:none;color:var(--mute);font:inherit;font-size:.9rem;padding:7px 18px;border-radius:9px;cursor:pointer}
+.tabs button.on{background:var(--navy);color:#fff;font-weight:700}
+.chart{height:580px}.chart.hide{display:none}
+
+/* ---------- About AAPL ---------- */
+.facts{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:6px 0 4px}
+.fact{background:var(--sky-xl);padding:12px 14px}
+.fact span{display:block;font-family:var(--mono);font-size:.66rem;letter-spacing:.07em;text-transform:uppercase;color:var(--mute)}
+.fact b{display:block;font-size:.95rem;color:var(--navy);margin-top:2px;line-height:1.35}
+.segs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.seg{border:1px solid var(--line);border-radius:14px;padding:14px;background:var(--white);border-top:3px solid var(--sky)}
+.seg b{display:block;color:var(--navy);margin-bottom:2px}
+.seg small{color:var(--mute);font-size:.8rem;line-height:1.5;display:block}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.list{margin:0;padding:0;list-style:none}
+.list li{position:relative;padding:0 0 9px 22px;color:#27425f;font-size:.94rem}
+.list li::before{content:"";position:absolute;left:2px;top:.62em;width:8px;height:8px;border-radius:50%;background:var(--sky)}
+.list.risk li::before{background:var(--navy)}
+
+/* ---------- Indicators ---------- */
+.ind{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.ind .tag{display:inline-block;font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;background:var(--sky-l);color:var(--sky-d);padding:2px 10px;border-radius:99px;margin-bottom:8px;font-weight:600}
+.ind h3{font-size:1.25rem;margin-bottom:6px}
+.formula{font-family:var(--mono);font-size:.84rem;background:var(--navy);color:#dbeeff;border-radius:12px;padding:14px 16px;line-height:1.9;margin:12px 0;overflow-x:auto;white-space:pre}
+.formula i{font-style:normal;color:#7cc4f5}
+.ex{background:var(--sky-xl);border:1px dashed #9fd0f3;border-radius:12px;padding:10px 14px;font-size:.88rem;color:#27425f;margin-top:12px}
+.ex b{color:var(--sky-d)}
+
+/* ---------- Financials ---------- */
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:14px}
+.stat{background:var(--sky-xl);padding:15px 15px 13px}
+.stat span{display:block;color:var(--mute);font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase}
+.stat b{display:block;font-family:var(--mono);font-size:1.4rem;margin:4px 0 2px;color:var(--navy)}
+.stat small{display:block;color:var(--mute);font-size:.74rem;line-height:1.4}
+.note{font-size:.8rem;color:var(--mute);border-left:3px solid var(--sky);padding:2px 0 2px 12px;margin:0 0 14px!important}
+
+/* ---------- Thai launches ---------- */
+.launch{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.lc{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 10px 30px rgba(10,35,66,.05);display:flex;flex-direction:column;gap:12px}
+.lc.hero{grid-column:1/-1;background:linear-gradient(135deg,var(--navy) 0,var(--navy-2) 100%);color:#fff;border-color:var(--navy)}
+.lc.hero h3,.lc.hero p{color:#fff}
+.lc.hero .meta span{color:#9db8d6}.lc.hero .meta b{color:#fff}
+.lc.hero .src{color:#7cc4f5}
+.lc h3{margin:0;font-size:1.3rem}
+.lc p{margin:0;color:#27425f;font-size:.93rem}
+.badge{align-self:flex-start;font-size:.72rem;font-weight:700;padding:3px 12px;border-radius:99px;background:var(--sky-l);color:var(--sky-d)}
+.badge.live{background:#d9f3e4;color:#157a43}
+.badge.rumor{background:#fff1d6;color:#9a5b00}
+.lc.hero .badge{background:var(--sky);color:#fff}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.meta div{border-left:3px solid var(--sky);padding-left:12px}
+.meta span{display:block;font-size:.72rem;font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+.meta b{display:block;font-size:1.02rem;color:var(--navy)}
+.count{font-family:var(--mono);font-size:2rem;font-weight:600;color:#7cc4f5;line-height:1}
+.src{margin-top:auto;font-size:.8rem;color:var(--sky-d);text-decoration:none;font-weight:500}
+.src:hover{text-decoration:underline}
+.asof{font-size:.8rem;color:var(--mute);margin-top:14px}
+
+/* ---------- Responsive ---------- */
+@media(max-width:1100px){
+  .segs{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .facts{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:980px){
+  aside{position:sticky;width:auto;flex-direction:row;align-items:center;gap:14px;padding:12px 16px;overflow-x:auto}
+  nav{flex-direction:row}nav a{white-space:nowrap;padding:7px 10px}nav a span{display:none}
+  .fx{margin:0 0 0 auto;padding:8px 12px;white-space:nowrap}.fx b{font-size:1.05rem}.fx small{font-size:.6rem}
+  .brand small{display:none}
+  main{margin-left:0;padding-top:28px}
+  .two,.ind,.launch{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .segs,.facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .chart{height:480px}
+}
+</style>
+</head>
+<body>
+
+<aside>
+  <div class="brand">
+    <div class="mark">AAPL</div>
+    <div><b>AAPL Terminal</b><small>Apple Inc. · NASDAQ</small></div>
+  </div>
+  <nav>
+    <a href="#price"><span>01</span>ราคาหุ้น</a>
+    <a href="#chart"><span>02</span>กราฟราคา</a>
+    <a href="#fund"><span>03</span>ข้อมูลพื้นฐาน</a>
+    <a href="#launch"><span>04</span>เปิดตัวในไทย</a>
+    <a href="#news"><span>05</span>ข่าวต่างประเทศ</a>
+  </nav>
+  <div class="fx"><small>USD / THB</small><b id="fxv">…</b></div>
+</aside>
+
+<main>
+  <!-- 01 -->
+  <section id="price">
+    <div class="eyebrow">01 · Live quote</div>
+    <h2>ราคาหุ้น AAPL</h2>
+    <p class="lead">ราคาล่าสุดของ Apple Inc. ในตลาด NASDAQ อัปเดตแบบเรียลไทม์</p>
+    <div class="panel">
+      <div class="tradingview-widget-container">
+        <div class="tradingview-widget-container__widget"></div>
+        <script src="https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js" async>
+        {"symbol":"NASDAQ:AAPL","width":"100%","colorTheme":"light","isTransparent":true,"locale":"en"}
+        </script>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section id="chart">
+    <div class="eyebrow">02 · Chart</div>
+    <h2>กราฟราคา</h2>
+    <p class="lead">ดูแนวโน้มราคาย้อนหลัง เลือกกราฟเดี่ยว หรือเพิ่มอินดิเคเตอร์ MACD และ RSI ใต้กราฟ</p>
+    <div class="tabs">
+      <button id="tabSingle" class="on">กราฟเดี่ยว</button>
+      <button id="tabMulti">หลายกราฟ (MACD, RSI)</button>
+    </div>
+    <div class="panel flush">
+      <div id="single" class="chart"></div>
+      <div id="multi" class="chart hide"></div>
+    </div>
+  </section>
+
+  <!-- 03 -->
+  <section id="fund">
+    <div class="eyebrow">03 · Fundamentals</div>
+    <h2>ข้อมูลพื้นฐาน</h2>
+    <p class="lead">ทำความรู้จัก AAPL ให้ลึกขึ้น ตั้งแต่ธุรกิจ แหล่งรายได้ ไปจนถึงตัวเลขที่ใช้ประเมินมูลค่า</p>
+
+    <div class="panel">
+      <h3>AAPL คือหุ้นอะไร</h3>
+      <p>AAPL คือสัญลักษณ์ซื้อขายของ Apple Inc. บริษัทเทคโนโลยีสัญชาติอเมริกัน ที่ออกแบบและจำหน่ายอุปกรณ์อิเล็กทรอนิกส์สำหรับผู้บริโภค ซอฟต์แวร์ และบริการดิจิทัล จุดเด่นของ Apple คือการสร้าง "ระบบนิเวศ" ที่ฮาร์ดแวร์ ซอฟต์แวร์ และบริการทำงานเชื่อมกัน ทำให้ลูกค้าที่ใช้ผลิตภัณฑ์หนึ่งชิ้นมักซื้อชิ้นอื่นต่อเนื่อง และกลายเป็นฐานลูกค้าที่ภักดีสูง</p>
+      <div class="facts">
+        <div class="fact"><span>Ticker</span><b>AAPL</b></div>
+        <div class="fact"><span>ตลาด</span><b>NASDAQ</b></div>
+        <div class="fact"><span>ก่อตั้ง</span><b>ปี 1976</b></div>
+        <div class="fact"><span>เข้าตลาด (IPO)</span><b>ปี 1980</b></div>
+        <div class="fact"><span>สำนักงานใหญ่</span><b>Cupertino, California</b></div>
+        <div class="fact"><span>สกุลเงิน</span><b>USD</b></div>
+      </div>
+
+      <h3 class="sub">Apple หารายได้จากอะไร</h3>
+      <div class="segs">
+        <div class="seg"><b>iPhone</b><small>สินค้าหลัก สร้างรายได้ราวครึ่งหนึ่งของบริษัท (โดยประมาณ)</small></div>
+        <div class="seg"><b>Services</b><small>App Store, iCloud, Apple Music, Apple Pay, โฆษณา สัดส่วนราว 1 ใน 4 และกำไรสูง</small></div>
+        <div class="seg"><b>Mac</b><small>คอมพิวเตอร์ MacBook, iMac ใช้ชิป Apple Silicon ที่ออกแบบเอง</small></div>
+        <div class="seg"><b>iPad</b><small>แท็บเล็ตสำหรับการเรียน งานสร้างสรรค์ และงานทั่วไป</small></div>
+        <div class="seg"><b>Wearables & Home</b><small>Apple Watch, AirPods, Apple TV, HomePod และอุปกรณ์เสริม</small></div>
+      </div>
+
+      <div class="two" style="margin-top:22px">
+        <div>
+          <h3>จุดแข็งที่นักลงทุนมอง</h3>
+          <ul class="list">
+            <li>ระบบนิเวศและแบรนด์แข็งแรง ลูกค้าเปลี่ยนไปใช้ค่ายอื่นได้ยาก</li>
+            <li>ธุรกิจบริการเติบโตต่อเนื่อง มีอัตรากำไรสูงกว่าฮาร์ดแวร์</li>
+            <li>สร้างกระแสเงินสดจำนวนมาก และมีการซื้อหุ้นคืนสม่ำเสมอ</li>
+            <li>ออกแบบชิปเองทำให้ควบคุมประสิทธิภาพและต้นทุนได้ดีขึ้น</li>
+          </ul>
+        </div>
+        <div>
+          <h3>ความเสี่ยงที่ควรติดตาม</h3>
+          <ul class="list risk">
+            <li>พึ่งพายอดขาย iPhone สูง หากวงจรการอัปเกรดชะลอจะกระทบผลประกอบการ</li>
+            <li>ห่วงโซ่อุปทานกระจุกตัวในเอเชีย และเสี่ยงต่อภาษีศุลกากรหรือความตึงเครียดทางการค้า</li>
+            <li>กฎหมายแข่งขันและกฎระเบียบเกี่ยวกับ App Store ในหลายประเทศ</li>
+            <li>ตลาดจีนแข่งขันรุนแรง และมูลค่าหุ้น (P/E) อยู่ในระดับสูง</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub" style="margin-top:34px">อินดิเคเตอร์ที่ใช้ดูกราฟ: MACD และ RSI</h3>
+    <div class="ind" style="margin-top:12px">
+      <div class="panel">
+        <span class="tag">MACD</span>
+        <h3>Moving Average Convergence Divergence</h3>
+        <p>MACD คือตัวชี้วัดโมเมนตัมที่ดูความต่างระหว่างค่าเฉลี่ยเคลื่อนที่แบบ EMA ระยะสั้นกับระยะยาว ใช้ดูทิศทางของแนวโน้มและจังหวะที่แรงซื้อหรือแรงขายเปลี่ยนไป</p>
+        <div class="formula"><i>EMA วันนี้</i> = ราคาปิด × k + EMA เมื่อวาน × (1 − k)
+      โดย k = 2 ÷ (N + 1)
+
+<i>MACD</i>      = EMA(12) − EMA(26)
+<i>Signal</i>    = EMA(9) ของเส้น MACD
+<i>Histogram</i> = MACD − Signal</div>
+        <ul class="list">
+          <li>MACD ตัดขึ้นเหนือ Signal มักตีความว่าโมเมนตัมเป็นขาขึ้น ตัดลงใต้ Signal คือขาลง</li>
+          <li>MACD อยู่เหนือเส้นศูนย์ แปลว่า EMA ระยะสั้นอยู่เหนือระยะยาว แนวโน้มระยะสั้นแข็งแรงกว่า</li>
+          <li>แท่ง Histogram ที่สูงขึ้นหรือลึกขึ้น แสดงว่าโมเมนตัมแรงขึ้น หากหดสั้นลงอาจเริ่มอ่อนแรง</li>
+          <li>ราคาทำจุดสูงใหม่แต่ MACD ไม่ทำตาม เรียกว่า Divergence เป็นสัญญาณเตือนว่าแรงส่งอาจอ่อนลง</li>
+        </ul>
+        <div class="ex"><b>ตัวอย่างสมมติ:</b> EMA(12) = 215.40 และ EMA(26) = 212.10 จะได้ MACD = 3.30</div>
+      </div>
+
+      <div class="panel">
+        <span class="tag">RSI</span>
+        <h3>Relative Strength Index</h3>
+        <p>RSI วัดความแรงของวันที่ราคาขึ้นเทียบกับวันที่ราคาลงในช่วงที่กำหนด (ค่าปกติคือ 14 วัน) ได้ค่าอยู่ระหว่าง 0 ถึง 100 ใช้ดูภาวะซื้อมากหรือขายมากเกินไป</p>
+        <div class="formula"><i>RS</i>  = ค่าเฉลี่ยวันที่ราคาขึ้น (14 วัน)
+      ÷ ค่าเฉลี่ยวันที่ราคาลง (14 วัน)
+
+<i>RSI</i> = 100 − 100 ÷ (1 + RS)
+
+<i>Wilder</i>: AvgGain = (AvgGain เมื่อวาน × 13 + กำไรวันนี้) ÷ 14
+        AvgLoss = (AvgLoss เมื่อวาน × 13 + ขาดทุนวันนี้) ÷ 14</div>
+        <ul class="list">
+          <li>RSI สูงกว่า 70 ถือว่าซื้อมากเกินไป (Overbought) ราคามีโอกาสพักตัว</li>
+          <li>RSI ต่ำกว่า 30 ถือว่าขายมากเกินไป (Oversold) ราคามีโอกาสดีดกลับ</li>
+          <li>ค่า 50 เป็นเส้นกลาง เหนือ 50 โมเมนตัมเอนไปทางขาขึ้น ต่ำกว่า 50 เอนไปทางขาลง</li>
+          <li>ในแนวโน้มแรง RSI อาจอยู่เกิน 70 หรือต่ำกว่า 30 ได้นาน จึงควรดูร่วมกับกราฟราคา</li>
+        </ul>
+        <div class="ex"><b>ตัวอย่างสมมติ:</b> ค่าเฉลี่ยขึ้น 1.2 และค่าเฉลี่ยลง 0.8 ได้ RS = 1.5 และ RSI = 100 − 100 ÷ 2.5 = 60</div>
+      </div>
+    </div>
+    <p class="asof">อินดิเคเตอร์เป็นเครื่องมือประกอบการตัดสินใจจากข้อมูลในอดีต ไม่ได้รับประกันว่าราคาจะขึ้นหรือลง</p>
+
+    <h3 class="sub" style="margin-top:34px">ตัวเลขทางการเงินสำคัญ</h3>
+    <div class="panel" style="margin-top:12px">
+      <div class="stats">
+        <div class="stat"><span>P/E</span><b id="pe">…</b><small>ราคาเทียบกำไรต่อหุ้น</small></div>
+        <div class="stat"><span>EPS</span><b id="eps">…</b><small>กำไรสุทธิต่อหุ้น</small></div>
+        <div class="stat"><span>Div Yield</span><b id="dy">…</b><small>ปันผลต่อปีเทียบราคา</small></div>
+        <div class="stat"><span>P/BV</span><b id="pb">…</b><small>ราคาเทียบมูลค่าบัญชี</small></div>
+        <div class="stat"><span>Market Cap</span><b id="mc">…</b><small id="mcThb">มูลค่าตลาดรวม</small></div>
+        <div class="stat"><span>Revenue</span><b id="rev">…</b><small>รายได้รวมต่อปี</small></div>
+        <div class="stat"><span>Net Income</span><b id="ni">…</b><small>กำไรสุทธิต่อปี</small></div>
+        <div class="stat"><span>Net Margin</span><b id="nm">…</b><small>กำไรสุทธิ ÷ รายได้</small></div>
+      </div>
+      <p class="note">ตัวเลขทั้งหมดเป็นค่าสมมติที่ตั้งไว้ในโค้ดเพื่อแสดงผล ไม่ใช่ข้อมูลจริงหรือข้อมูลสด ใช้วิดเจ็ตด้านล่างดูงบการเงินจริง</p>
+      <div style="height:400px">
+        <div class="tradingview-widget-container" style="height:100%">
+          <div class="tradingview-widget-container__widget" style="height:100%"></div>
+          <script src="https://s3.tradingview.com/external-embedding/embed-widget-financials.js" async>
+          {"isTransparent":true,"largeChartUrl":"","displayMode":"regular","width":"100%","height":"100%","colorTheme":"light","symbol":"NASDAQ:AAPL","locale":"en"}
+          </script>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section id="launch">
+    <div class="eyebrow">04 · Launch in Thailand</div>
+    <h2>เปิดตัวในไทย &amp; วันวางจำหน่าย</h2>
+    <p class="lead">ผลิตภัณฑ์ใหม่ของ Apple ที่เกี่ยวข้องกับตลาดไทย พร้อมกำหนดการสั่งซื้อล่วงหน้าและวันวางขาย</p>
+    <div class="launch">
+
+      <div class="lc hero">
+        <span class="badge">เปิดสั่งซื้อล่วงหน้าวันนี้</span>
+        <h3>iPhone Duo — iPhone จอพับรุ่นแรก</h3>
+        <p>จอด้านในใหญ่กว่า iPhone 18 Pro Max ถึง 50% ใช้ชิป A20 Pro มีสีสตาร์ไวท์และไนท์สกาย เปิดสั่งซื้อผ่าน apple.com/th และแอป Apple Store</p>
+        <div class="meta">
+          <div><span>สั่งซื้อล่วงหน้า</span><b>ศ. 16 ต.ค. 2569 · 19:00 น.</b></div>
+          <div><span>วางจำหน่าย</span><b>ศ. 23 ต.ค. 2569</b></div>
+          <div><span>ราคาในไทย</span><b>฿79,900 – ฿127,900</b></div>
+          <div><span>นับถอยหลัง</span><div class="count" id="cd" style="border:0;padding:0">–</div></div>
+        </div>
+        <a class="src" href="https://www.apple.com/th/newsroom/2026/10/open-up-to-new-possibilities-with-iphone-duo/" target="_blank" rel="noopener">แหล่งข้อมูล: Apple Newsroom (TH) →</a>
+      </div>
+
+      <div class="lc">
+        <span class="badge live">วางจำหน่ายแล้ว</span>
+        <h3>iPhone 18 Pro / Pro Max</h3>
+        <p>ชิป A20 Pro และกล้อง Pro Fusion 48MP เปิดขายก่อน iPhone Duo ประมาณหนึ่งเดือน</p>
+        <div class="meta">
+          <div><span>สั่งซื้อล่วงหน้า</span><b>12 ก.ย. 2569</b></div>
+          <div><span>วางจำหน่าย</span><b>18 ก.ย. 2569</b></div>
+          <div><span>iPhone 18 Pro เริ่มที่</span><b>฿48,900</b></div>
+        </div>
+        <a class="src" href="https://nuania.com/15493/" target="_blank" rel="noopener">แหล่งข้อมูล: Nuania →</a>
+      </div>
+
+      <div class="lc">
+        <span class="badge">กำหนดวางขายเดือนธันวาคม</span>
+        <h3>Apple Home Collection</h3>
+        <p>ไลน์อัพอุปกรณ์เสริมสำหรับบ้านอัจฉริยะ รองรับ Apple Home และ Matter วางจำหน่ายที่ apple.com/store แอป Apple Store และ Apple Store ในเดือนธันวาคม บางรุ่นเริ่มขายต้นปี 2570</p>
+        <div class="meta">
+          <div><span>ประกาศ</span><b>13 ต.ค. 2569</b></div>
+          <div><span>วางจำหน่าย</span><b>ธ.ค. 2569</b></div>
+        </div>
+        <a class="src" href="https://apple.com/th/newsroom/2026/10/introducing-apple-home-collection-a-new-lineup-of-smart-home-accessories" target="_blank" rel="noopener">แหล่งข้อมูล: Apple Newsroom (TH) →</a>
+      </div>
+
+      <div class="lc">
+        <span class="badge rumor">ข่าวลือ · ยังไม่ยืนยัน</span>
+        <h3>MacBook Pro จอสัมผัส OLED</h3>
+        <p>รายงานจาก Mark Gurman (Bloomberg) ระบุว่า Apple อาจเปิดตัวในปลายเดือนตุลาคม ยังไม่มีประกาศกำหนดวางขายในไทยอย่างเป็นทางการ</p>
+        <div class="meta">
+          <div><span>เปิดตัว (คาด)</span><b>27 หรือ 28 ต.ค. 2569</b></div>
+          <div><span>วางขาย (คาด)</span><b>6 พ.ย. 2569</b></div>
+        </div>
+        <a class="src" href="https://www.flashfly.net/wp/513261" target="_blank" rel="noopener">แหล่งข้อมูล: Flashfly →</a>
+      </div>
+    </div>
+    <p class="asof">ข้อมูลรวบรวม ณ วันที่ 16 ต.ค. 2569 กำหนดการและราคาอาจเปลี่ยนแปลง ตรวจสอบกับ apple.com/th อีกครั้งก่อนสั่งซื้อ</p>
+  </section>
+
+  <!-- 05 -->
+  <section id="news">
+    <div class="eyebrow">05 · Global news</div>
+    <h2>ข่าวต่างประเทศ</h2>
+    <p class="lead">ข่าวและอัปเดตล่าสุดเกี่ยวกับ AAPL จากสำนักข่าวต่างประเทศ</p>
+    <div class="panel flush" style="height:620px">
+      <div class="tradingview-widget-container" style="height:100%">
+        <div class="tradingview-widget-container__widget" style="height:100%"></div>
+        <script src="https://s3.tradingview.com/external-embedding/embed-widget-timeline.js" async>
+        {"feedMode":"symbol","symbol":"NASDAQ:AAPL","isTransparent":true,"displayMode":"regular","width":"100%","height":"100%","colorTheme":"light","locale":"en"}
+        </script>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="https://s3.tradingview.com/tv.js"></script>
+<script>
+// --- TradingView charts ---
+function makeChart(id, studies){
+  new TradingView.widget({
+    container_id:id, autosize:true, symbol:"NASDAQ:AAPL", interval:"D",
+    timezone:"Asia/Bangkok", theme:"light", style:"1", locale:"en",
+    toolbar_bg:"#f1f8ff", allow_symbol_change:false, hide_side_toolbar:false, studies:studies
+  });
+}
+makeChart("single", []);
+let multiDone=false;
+document.getElementById('tabSingle').onclick=()=>switchTab(true);
+document.getElementById('tabMulti').onclick=()=>switchTab(false);
+function switchTab(single){
+  document.getElementById('single').classList.toggle('hide',!single);
+  document.getElementById('multi').classList.toggle('hide',single);
+  document.getElementById('tabSingle').classList.toggle('on',single);
+  document.getElementById('tabMulti').classList.toggle('on',!single);
+  if(!single && !multiDone){makeChart("multi",["MACD@tv-basicstudies","RSI@tv-basicstudies"]);multiDone=true;}
+}
+
+// --- Hypothetical financials (assumed values for display only) ---
+const MC_USD_TRILLION = 3.72;
+document.getElementById('pe').textContent='31.5x';
+document.getElementById('eps').textContent='$7.40';
+document.getElementById('dy').textContent='0.45%';
+document.getElementById('pb').textContent='46.2x';
+document.getElementById('mc').textContent='$'+MC_USD_TRILLION.toFixed(2)+'T';
+document.getElementById('rev').textContent='$425B';
+document.getElementById('ni').textContent='$118B';
+document.getElementById('nm').textContent='27.8%';
+
+// --- FX USD/THB ---
+fetch('https://open.er-api.com/v6/latest/USD').then(r=>r.json())
+  .then(d=>{
+    const thb=d.rates.THB;
+    document.getElementById('fxv').textContent=thb.toFixed(2);
+    document.getElementById('mcThb').textContent='≈ '+(MC_USD_TRILLION*thb).toFixed(1)+' ล้านล้านบาท';
+  })
+  .catch(()=>{document.getElementById('fxv').textContent='N/A'});
+
+// --- iPhone Duo countdown (on sale 23 Oct 2026, Thailand time) ---
+(function(){
+  const el=document.getElementById('cd');
+  const target=new Date('2026-10-23T00:00:00+07:00').getTime();
+  const days=Math.ceil((target-Date.now())/86400000);
+  el.textContent = days>0 ? 'อีก '+days+' วัน' : 'วางจำหน่ายแล้ว';
+})();
+</script>
+</body>
+</html>
